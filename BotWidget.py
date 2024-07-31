@@ -8,8 +8,10 @@ from PyQt6.QtWidgets import (
 from TelegramManager import TelegramController
 from MessageBox import alert
 from Constant import Config
+from PyQt6 import QtCore
 
 class BotManager(QWidget):
+    bot_slot = QtCore.pyqtSignal(dict)
     def __init__(self):
         super().__init__()
         self.setObjectName('Body')
@@ -96,3 +98,4 @@ class BotManager(QWidget):
         self.get_bot()
         self.configure_button.setText('Configure')
         self.configure_button.setEnabled(True)
+        self.bot_slot.emit({'bot_configured': True})

@@ -27,7 +27,8 @@ import os
 base_dir = os.path.dirname(__file__)
 
 class MainApplication(QMainWindow):
-    main_slot = QtCore.pyqtSignal(dict)
+    main_data_slot = QtCore.pyqtSignal(dict)
+    main_bot_slot = QtCore.pyqtSignal(dict)
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.telegram = TelegramController()
@@ -76,8 +77,10 @@ class MainApplication(QMainWindow):
 
         # Connect slot
         self.data_slot = DataUpdate()
-        self.data_slot.data_slot.connect(self.get_slot_data)
-        self.main_slot.connect(self.data_slot.update)
+        self.data_slot.data_slot.connect(self.get_data_update)
+        self.bot_widget.bot_slot.connect(self.get_bot_update)
+        self.main_data_slot.connect(self.data_slot.update)
+        self.main_bot_slot.connect(self.bot_widget.configure)
 
         self.send_button = QPushButton('Send')
         self.send_button.clicked.connect(self.send_message)
@@ -399,16 +402,18 @@ class MainApplication(QMainWindow):
 
 
     @QtCore.pyqtSlot(dict)
-    def get_slot_data(self, data):
+    def get_data_update(self, data):
         if 'synchronized' in data and data['synchronized']:
+            self.telegram = TelegramController()
+            self.channels = self.telegram.get_groups_channels([Config.CHAT_TYPE_CHANNEL])
+            self.groups = self.telegram.get_groups_channels([Config.CHAT_TYPE_GROUP, Config.CHAT_TYPE_SUPER_GROUP])
             self.uncheck_boxes()
             if self.groups:
                 for i in reversed(range(self.group_list.count())):
                     self.group_label.setHidden(True)
                     self.group_list.itemAt(i).widget().setParent(None)
                 
-            self.group_list.deleteLater()
-            self.groups = self.telegram.get_groups_channels([Config.CHAT_TYPE_GROUP, Config.CHAT_TYPE_SUPER_GROUP])
+                self.group_list.deleteLater()
             self.setup_group_layout()
 
             if self.channels:
@@ -416,11 +421,19 @@ class MainApplication(QMainWindow):
                     self.channel_label.setHidden(True)
                     self.channel_list.itemAt(i).widget().setParent(None)
 
-            self.channel_list.deleteLater()
+                self.channel_list.deleteLater()
             self.channels = self.telegram.get_groups_channels([Config.CHAT_TYPE_CHANNEL])
             self.setup_channel_layout()
-            
     
+
+    @QtCore.pyqtSlot(dict)
+    def get_bot_update(self, data):
+        if 'bot_configured' in data and data['bot_configured']:
+            self.telegram = TelegramController()
+            self.data_slot = DataUpdate()
+            self.data_slot.data_slot.connect(self.get_data_update)
+
+
     def reload_groups_channels(self):
         self.reload_button.setText('Reloading update...')
         self.reload_button.setDisabled(True)

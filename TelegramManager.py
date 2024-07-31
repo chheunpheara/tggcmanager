@@ -79,7 +79,6 @@ class TelegramController():
 
             # Update id
             self.update_id(results)
-            print(results)
         if os.path.exists(fpath):
             with open(fpath) as f:
                 existing = json.load(f)
