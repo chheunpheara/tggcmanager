@@ -96,4 +96,3 @@ class BotManager(QWidget):
         self.get_bot()
         self.configure_button.setText('Configure')
         self.configure_button.setEnabled(True)
-        self.bot_name.setText(str(status))
