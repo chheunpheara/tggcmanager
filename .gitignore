@@ -1,0 +1,11 @@
+__pycache__
+dist.zip
+TelegramManagerBackup.py
+MainApplicationBackup.py
+App.py
+dist
+build
+contents/*
+!contents/.gitkeep
+*.spec
+.DS_Store
