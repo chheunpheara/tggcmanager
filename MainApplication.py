@@ -24,6 +24,13 @@ from MessageBox import (
 from Worker import Worker
 import os
 
+try:
+    from ctypes import windll  # Only exists on Windows.
+    myappid = 'mycompany.myproduct.subproduct.version'
+    windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+except ImportError:
+    pass
+
 base_dir = os.path.dirname(__file__)
 
 class MainApplication(QMainWindow):
